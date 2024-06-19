@@ -5,6 +5,7 @@ use args::Args;
 use args::Command;
 use clap::Parser;
 use puppy_script::debug::pretty_print_bytecode;
+use puppy_script::types::RunResult;
 use puppy_script::PuppyScriptVM;
 mod args;
 
@@ -22,11 +23,32 @@ fn main() {
 	let args = Args::parse();
 	let mut vm = PuppyScriptVM::new();
 	vm.log = args.log;
+	let print_idt = vm.store_idt("print".to_string());
 
 	match args.command {
 		Command::Run { path } => {
 			let code = get_code(&path);
-			vm.run_code(&code);
+			let mut res = vm.run_code(&code);
+			loop {
+				match res {
+					RunResult::Value(_) => {
+						break;
+					},
+					RunResult::Await { stack_id, value } => {
+						break;
+					},
+					RunResult::Call { stack_id, ident, args } => {
+						if ident == print_idt {
+							let args_str = args.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(" ");
+							println!("{}", args_str);
+						}
+						break;
+					},
+					RunResult::None => {
+						break;
+					},
+				}
+			}
 		}
 		Command::Ast { path, pretty } => {
 			let code = get_code(&path);

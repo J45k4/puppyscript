@@ -30,7 +30,6 @@ pub fn pretty_print_bytecode(vm: &PuppyScriptVM, blk: u32) {
 			ByteCode::Var(v) => println!("Var {}", v), 
 			ByteCode::Next => println!("Next"),
 			ByteCode::MakeIter => println!("MakeIter"),
-			ByteCode::Await => println!("Await"),
 			ByteCode::AccessProp(a) => println!("AccessProp {}", a), 
 		}
 	}

@@ -1,6 +1,6 @@
 mod parsing;
 mod parsing_tests;
-mod types;
+pub mod types;
 mod scope;
 mod callstack;
 mod vm;

@@ -23,7 +23,6 @@ pub enum ByteCode {
     Var(u32),
     Next,
     MakeIter,
-    Await,
     AccessProp(u32),
 }
 
@@ -52,7 +51,6 @@ impl ToString for ByteCode {
 			ByteCode::Var(val) => format!("VAR {}", val),
 			ByteCode::Next => "NEXT".to_string(),
 			ByteCode::MakeIter => "MAKE_ITER".to_string(),
-			ByteCode::Await => "AWAIT".to_string(),
 			ByteCode::AccessProp(val) => format!("ACCESS_PROP {}", val),
 		}
 	}

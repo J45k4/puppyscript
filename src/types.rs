@@ -18,6 +18,57 @@ pub enum Value {
     None,
 }
 
+impl ToString for Value {
+	fn to_string(&self) -> String {
+		match self {
+			Value::Int(i) => i.to_string(),
+			Value::Float(f) => f.to_string(),
+			Value::Str(s) => s.clone(),
+			Value::Bool(b) => b.to_string(),
+			Value::List(l) => format!("{:?}", l),
+			Value::Ptr(p) => format!("{:?}", p),
+			Value::Fn(f) => format!("{:?}", f),
+			Value::Obj(o) => format!("{:?}", o),
+			Value::ListIter(l) => format!("{:?}", l),
+			Value::UndefIdent(u) => format!("{:?}", u),
+			Value::UndefCall { ident, args } => format!("{:?}({:?})", ident, args),
+			Value::None => "None".to_string(),
+		}
+	}
+}
+
+impl From<&StackValue> for Value {
+	fn from(val: &StackValue) -> Self {
+		match val {
+			StackValue::Int(i) => Self::Int(*i),
+			StackValue::Float(f) => Self::Float(*f),
+			StackValue::Str(s) => Self::Str(s.to_owned()),
+			StackValue::Bool(b) => Self::Bool(*b),
+			StackValue::Ptr(p) => Self::Ptr(p.clone()),
+			StackValue::Undef(u) => Self::UndefIdent(*u),
+			StackValue::Fn(f) => Self::Fn(*f),
+			StackValue::None => Self::None,
+			_ => todo!("{:?}", val)
+		}
+	}
+}
+
+impl From<StackValue> for Value {
+	fn from(val: StackValue) -> Self {
+		match val {
+			StackValue::Int(i) => Self::Int(i),
+			StackValue::Float(f) => Self::Float(f),
+			StackValue::Str(s) => Self::Str(s),
+			StackValue::Bool(b) => Self::Bool(b),
+			StackValue::Ptr(p) => Self::Ptr(p),
+			StackValue::Undef(u) => Self::UndefIdent(u),
+			StackValue::Fn(f) => Self::Fn(f),
+			StackValue::None => Self::None,
+			_ => todo!("{:?}", val)
+		}
+	}
+}
+
 #[derive(Debug, PartialEq, Clone, Default)]
 pub struct Ptr {
 	pub id: u32,
@@ -87,22 +138,6 @@ pub struct ListIter {
 impl Default for Value {
 	fn default() -> Self {
 		Self::None
-	}
-}
-
-impl From<StackValue> for Value {
-	fn from(val: StackValue) -> Self {
-		match val {
-			StackValue::Int(i) => Self::Int(i),
-			StackValue::Float(f) => Self::Float(f),
-			StackValue::Str(s) => Self::Str(s),
-			StackValue::Bool(b) => Self::Bool(b),
-			StackValue::Ptr(p) => Self::Ptr(p),
-			StackValue::Undef(u) => Self::UndefIdent(u),
-			StackValue::Fn(f) => Self::Fn(f),
-			StackValue::None => Self::None,
-			_ => todo!("{:?}", val)
-		}
 	}
 }
 
@@ -254,12 +289,9 @@ pub enum ASTNode {
 #[derive(Debug, PartialEq, Clone)]
 pub enum RunResult {
 	Value(Value),
-	Await {
-		stack_id: usize,
-		value: Value,
-	},
 	Call {
 		stack_id: usize,
+		ident: u32,
 		args: Vec<Value>,
 	},
 	None

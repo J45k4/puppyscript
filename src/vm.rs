@@ -223,16 +223,6 @@ impl PuppyScriptVM {
                     self.compile_node(block, arg);
                 }
 
-                match &*c.callee {
-                    ASTNode::Ident(idt) => {
-                        if idt == "await" {
-                            block.push(ByteCode::Await);
-                            return;
-                        }
-                    },
-                    _ => {}
-                }
-
                 self.compile_node(block, &c.callee);
                 block.push(ByteCode::Call(c.args.len() as u32));
             },
@@ -583,23 +573,18 @@ impl PuppyScriptVM {
                                 curr_blk = blk;
                             },
                             StackValue::Undef(i) => {
-                                let mut args = vec![];
-								if self.log > 0 {
-									println!("arg count: {}", arg_count);
+								// let undef_call = StackValue::UndefCall {
+                                //     ident: i,
+                                //     args
+                                // };
+								// if self.log > 1 {
+								// 	println!("undef call: {:?}", undef_call);
+								// }
+                                return RunResult::Call { 
+									stack_id, 
+									ident: i,
+									args: args.iter().map(|v| Value::from(v)).collect(),
 								}
-
-                                for i in 0..*arg_count {
-									if self.log > 0 {
-										println!("arg: {}", i);
-									}
-                                    let v = stack.pop_value().unwrap();
-                                    args.push(v);
-                                }
-                                args.reverse();
-                                stack.push_value(StackValue::UndefCall {
-                                    ident: i,
-                                    args
-                                });
                             },
                             StackValue::PropAccess { ptr, prop } => {
                                 let val = match self.scope.lookup(&ptr) {
@@ -798,28 +783,6 @@ impl PuppyScriptVM {
                             },
                             _ => todo!("{:?}", val)
                         }
-                    },
-                    ByteCode::Await => {
-                        let val = stack.pop_value().unwrap();
-                        let val = match val {
-                            StackValue::Int(i) => Value::Int(i),
-                            StackValue::Float(f) => Value::Float(f),
-                            StackValue::Str(s) => Value::Str(s),
-                            StackValue::Bool(b) => Value::Bool(b),
-                            StackValue::Undef(i) => Value::UndefIdent(i),
-                            StackValue::UndefCall { ident, args } => {
-                                Value::UndefCall {
-                                    ident,
-                                    args: vec![]
-                                }
-                            },
-                            _ => todo!("{:?}", val)
-                        };
-
-                        return RunResult::Await {
-                            stack_id,
-                            value: val
-                        };
                     },
                     ByteCode::Obj(arg_count) => {
                         let name = match stack.pop_value() {

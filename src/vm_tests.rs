@@ -148,24 +148,21 @@ mod tests {
     #[test]
     fn await_fun() {
         let mut vm = PuppyScriptVM::new();
-        let res = vm.run_code("await(test())");
+        let res = vm.run_code("test()");
 
-        assert_eq!(res, RunResult::Await {
-            stack_id: 0,
-            value: Value::UndefCall { 
-                ident: 30, 
-                args: vec![] 
-            }
-        });
+        assert_eq!(res, RunResult::Call { 
+			stack_id: 0, 
+			ident: 30, 
+			args: vec![] 
+		});
     }
 
     #[test]
     fn await_fun_return_result() {
         let mut vm = PuppyScriptVM::new();
-        let res = vm.run_code(r#"return await(test())"#);
-
+        let res = vm.run_code(r#"return test()"#);
         match res {
-            RunResult::Await { stack_id, value } => {
+            RunResult::Call { stack_id, ident, args } => {
                 let res = vm.cont(stack_id, Value::Int(1));
                 assert_eq!(res, RunResult::Value(Value::Int(1)));
             },
@@ -174,17 +171,17 @@ mod tests {
     }
 
 	#[test]
-	fn undef_call_with_args() {
+	fn await_fun_args() {
 		let mut vm = PuppyScriptVM::new();
 		let res = vm.run_code(r#"foo(1, 2)"#);
 
-		assert_eq!(res, RunResult::Value(Value::UndefCall {
-			ident: 30,
-			args: vec![
-				Value::Int(1),
-				Value::Int(2)
-			]
-		}));
+		match res {
+			RunResult::Call { stack_id, ident, args } => {
+				assert_eq!(ident, 30);
+				assert_eq!(args, vec![Value::Int(1), Value::Int(2)]);
+			},
+			_ => panic!("Invalid result")
+		}
 	}
 
     #[test]
