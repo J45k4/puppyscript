@@ -34,9 +34,6 @@ fn main() {
 					RunResult::Value(_) => {
 						break;
 					},
-					RunResult::Await { stack_id, value } => {
-						break;
-					},
 					RunResult::Call { stack_id, ident, args } => {
 						if ident == print_idt {
 							let args_str = args.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(" ");
