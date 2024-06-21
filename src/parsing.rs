@@ -639,11 +639,21 @@ impl Parser {
 				}
 				_ => {
 					let prob_name = self.expect_ident();
-					self.expect_eat(Token::Colon);
 
-					let prob = Property {
-						name: prob_name,
-						value: Box::new(self.parse_item().unwrap())
+					let prob = match self.peek(0) {
+						Some(Token::Colon) => {
+							self.expect_eat(Token::Colon);
+							Property {
+								name: prob_name,
+								value: Box::new(self.parse_item().unwrap())
+							}
+						},
+						_ => {
+							Property {
+								name: prob_name.clone(),
+								value: Box::new(ASTNode::Ident(prob_name))
+							}
+						}
 					};
 
 					props.push(prob);

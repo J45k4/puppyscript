@@ -1095,4 +1095,38 @@ mod tests {
 
 		assert_eq!(ast, expected);
 	}
+
+	#[test]
+	fn object_same_name_assigment() {
+		let code = r#"
+		camera = Camera {}
+
+		player = Node {
+			camera
+		}"#;
+
+		let ast = Parser::new(code).parse();
+
+		let expected = vec![
+			ASTNode::Assign(Assign {
+				left: Box::new(ASTNode::Ident("camera".to_string())),
+				right: Box::new(ASTNode::ObjIns(ObjIns {
+					name: Some("Camera".to_string()),
+					props: vec![],
+				})),
+			}),
+			ASTNode::Assign(Assign {
+				left: Box::new(ASTNode::Ident("player".to_string())),
+				right: Box::new(ASTNode::ObjIns(ObjIns {
+					name: Some("Node".to_string()),
+					props: vec![Property {
+						name: "camera".to_string(),
+						value: Box::new(ASTNode::Ident("camera".to_string())),
+					}],
+				})),
+			}),
+		];
+
+		assert_eq!(ast, expected);
+	}
 }
