@@ -68,10 +68,14 @@ enum Token {
 	StringDef,
 	#[token("return")]
 	Ret,
+	#[token("match")]
+	Match,
 	#[token("+")]
 	Plus,
 	#[token("-")]
 	Minus,
+	#[token("_")]
+	Underscore,
 	#[token("*")]
 	Multiply,
 	#[token("/")]
@@ -90,6 +94,8 @@ pub struct Parser {
 
 impl Parser {
 	pub fn new(input: &str) -> Parser {
+		println!("new parser");
+
 		let lexer = Token::lexer(input);
 
         let tokens = lexer.spanned()
@@ -378,6 +384,9 @@ impl Parser {
 			Token::For => {
 				Some(self.parse_for())
 			}
+			Token::Match => {
+				Some(self.parse_match())
+			}
 			_ => Some(self.parse_expr())
 		};
 
@@ -386,6 +395,28 @@ impl Parser {
 		}
 
 		ret
+	}
+
+	fn parse_match(&mut self) -> ASTNode {
+		if self.loglevel > 0 {
+			self.callstack.push("parse_match".to_string());
+		}
+
+		self.skip(1);
+
+		let cond = self.parse_expr();
+		self.expect_eat(Token::OpenBrace);
+
+		// let mut cases = Vec::new();
+
+		while let Some(token) = self.eat() {
+			println!("{:?}", token);
+			match token {
+				Token::Underscore => {}
+			}
+		}
+
+		ASTNode::Match
 	}
 
 	fn parse_for_it(&mut self) -> ASTNode {

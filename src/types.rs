@@ -284,6 +284,7 @@ pub enum ASTNode {
 	BinOp(BinOp),
 	If(If),
 	For(For),
+	Match
 }
 
 #[derive(Debug, PartialEq, Clone)]

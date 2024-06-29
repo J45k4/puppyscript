@@ -1129,4 +1129,16 @@ mod tests {
 
 		assert_eq!(ast, expected);
 	}
+
+	#[test]
+	fn match_parsing() {
+		let code = r#"
+		match a {
+			1 => 2,
+			_ => 3
+		}"#;
+
+		let ast = Parser::new(code).set_loglevel(1).parse();
+		// println!("{:?}", ast);
+	}
 }

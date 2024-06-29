@@ -1,0 +1,260 @@
+import std
+
+enum Token {
+	For
+	In
+	If
+	Else
+	OpenBrace
+	CloseBrace
+	OpenParen
+	CloseParen
+	OpenBracket
+	CloseBracket
+	Colon
+	Comma
+	Dot
+	Eq
+	Assign
+	True
+	False
+	String
+	Int(i64)
+	Float(f64)
+	Struct
+	IntDef
+	FloatDef
+	StringDef
+	Ret
+	Plus
+	Minus
+	Underscore
+	Mul
+	Div
+	Ident(String)
+}
+
+struct TokenEater {
+	tokens: Token[]
+	pos: i64
+
+	fn peek(i: u32) -> Token {
+		return this.tokens[this.pos + i]
+	}
+
+	fn eat() -> Token {
+		const token = this.tokens[this.pos]
+		this.pos += 1
+		return token
+	}
+}
+
+TokenEater.eat = fn () {
+	const token = this.tokens[this.pos]
+	this.pos += 1
+	return token
+}
+
+fn new_token_eater(tokens: Token[]): TokenEater {
+	return TokenEater {
+		tokens: tokens,
+		pos: 0
+	}
+}
+
+fn eat(self: TokenEater) -> Token {
+	const token = self.tokens[self.pos]
+	self.pos += 1
+	return token
+}
+
+fn tokenize(code: String) {
+	const tokens = []
+
+	const lines = code.split("\n")
+
+	var back_buffer = ""
+
+	for char in code {
+		if char == " " {
+			if back_buffer != "" {
+				tokens.push(back_buffer)
+				back_buffer = ""
+			}
+		} else {
+			back_buffer += char
+		}
+
+		const token = switch back_buffer {
+			case "for" Token.For
+			case "in" Token.In
+			case "if" Token.If
+			case "else" Token.Else
+			case "{" Token.OpenBrace
+			case "}" Token.CloseBrace
+			case "(" Token.OpenParen
+			case ")" Token.CloseParen
+			case "[" Token.OpenBracket
+			case "]" Token.CloseBracket
+			case "," Token.Comma
+			case "." Token.Dot
+			case "==" Token.Eq
+			case "=" Token.Assign
+			case "true" Token.True
+			case "false" Token.False
+			case Regex(r""[^"]*"") Token.String(back_buffer[1..-1])
+			case Regex(r"-?[0-9]+") Token.Int(i64(back_buffer))
+			case Regex(r"-?[0-9]*\.[0-9]+") Token.Float(f64(back_buffer))
+			case "struct" Token.Struct
+			case "Int" Token.IntDef
+			case "Float" Token.FloatDef
+			case "String" Token.StringDef
+			case "return" Token.Ret
+			case "switch" Token.Switch
+			case "+" Token.Plus
+			case "-" Token.Minus
+			case "*" Token.Mul
+			case "/" Token.Div
+			case "_" Token.Underscore
+			case Regex("[A-Za-z_0-9]+") Token.Ident(back_buffer)
+			default {
+				std.print("Unknown token: " + back_buffer)
+				std.exit(1)
+			}
+		}
+		
+		tokens.push(token)
+	}
+
+	return tokens
+}
+
+enum Value {
+	Int(i64)
+	Float(f64)
+	String(String)
+	Bool(bool)
+	List(Value[])
+}
+
+struct Assign {
+	left: AstNode
+	right: AstNode
+}
+
+struct Property {
+	name: String
+	value: String
+}
+
+struct ObjIns {
+	name: String
+	props: Property[]
+}
+
+struct Array {
+	items: AstNode[]
+}
+
+struct Call {
+	callee: AstNode
+	args: AstNode[]
+}
+
+
+struct Fun {
+	params: AstNode[]
+	body: AstNode[]
+}
+
+struct TypeField {
+	name: String
+	type: String
+}
+
+struct StructDef {
+	name: String
+	fields: TypeField[]
+}
+
+enum Op {
+	plus
+	Minus
+	Mul
+	Eq
+}
+
+struct BinOp {
+	left: AstNode
+	right: AstNode
+	op: Op
+}
+
+struct Ret {
+	value: AstNode
+}
+
+struct If {
+	cond: AstNode
+	body: AstNode[]
+	else?: AstNode[] 
+}
+
+enum ForCond {
+	None,
+	FromIt {
+		ident: String
+		it: AstNode
+	}
+}
+
+struct For {
+	cond: ForCond
+	body: AstNode[]
+}
+
+enum AstNode {
+	Ident(String)
+	Assign(Assign)
+	Array(Array)
+	Call(Call)
+	Lit(Value)
+	Fun(Fun)
+	StructDef(StructDef)
+	BinOp(BinOp)
+	Ret(Ret)
+
+}
+
+fn parse_item(eater: TokenEater) {
+	switch eater.peek(0) {
+		case Token.Assign {
+			
+		}
+	}
+}
+
+fn parse_tokens(tokens: Token[]): AstNode[] {
+	for {
+
+	}
+}
+
+fn run(path: String) {
+	const file_content = std.read_to_string(path)
+	const tokens = tokenize(file_content)
+
+	for token in tokens {
+		std.print(token)
+	}
+}
+
+fn main(args: [String]) {
+	const cmd = args[0]
+
+	select cmd {
+		case "run" {
+
+		}
+	}
+}
