@@ -46,6 +46,8 @@ enum Token {
 	Dot,
 	#[token("==")]
 	Eq,
+	#[token("!=")]
+	NotEq,
 	#[token("=")]
 	Assign,
 	#[token("true")]
@@ -99,7 +101,22 @@ impl Parser {
 		let lexer = Token::lexer(input);
 
         let tokens = lexer.spanned()
-			.map(|(token, span)| (token.unwrap(), span.into()))
+			.map(|(token, span)| {
+				println!("token: {:?} span: {:?}", token, span);
+
+				let token = match token {
+					Ok(token) => token,
+					Err(err) => {
+						let start = 0.max(span.start - 10);
+						let end = input.len().min(span.end + 10);
+						let text = input[start..end].to_string();
+
+						panic!("Error: {:?} code: {}", err, text);
+					},
+				};
+
+				(token, span.into())
+			})
 			.collect();
 
 		Parser {
@@ -412,7 +429,8 @@ impl Parser {
 		while let Some(token) = self.eat() {
 			println!("{:?}", token);
 			match token {
-				Token::Underscore => {}
+				Token::Underscore => {},
+				_ => {}
 			}
 		}
 

@@ -38,21 +38,27 @@ struct TokenEater {
 	tokens: Token[]
 	pos: i64
 
-	fn peek(i: u32) -> Token {
+	fn peek(i: u32): Token {
 		return this.tokens[this.pos + i]
 	}
 
-	fn eat() -> Token {
+	fn eat(): Token {
 		const token = this.tokens[this.pos]
 		this.pos += 1
 		return token
 	}
-}
 
-TokenEater.eat = fn () {
-	const token = this.tokens[this.pos]
-	this.pos += 1
-	return token
+	fn skip(i: u32) {
+		this.pos += i
+	}
+
+	fn expect_eat(token: Token) {
+		const t = this.eat()
+		if t != token {
+			std.print("Expected " + token + " but got " + t)
+			std.exit(1)
+		}
+	}
 }
 
 fn new_token_eater(tokens: Token[]): TokenEater {
@@ -62,7 +68,7 @@ fn new_token_eater(tokens: Token[]): TokenEater {
 	}
 }
 
-fn eat(self: TokenEater) -> Token {
+fn eat(self: TokenEater): Token {
 	const token = self.tokens[self.pos]
 	self.pos += 1
 	return token
@@ -226,10 +232,79 @@ enum AstNode {
 
 }
 
+fn parse_obj_props(eater: TokenEater): Property[] {
+	eater.expect_eat(Token.OpenBrace)
+
+	var props = []
+
+	for {
+		switch eater.peek(0) {
+			case Token.CloseBrace eater.skip(1)
+			case Token.Comma eater.skip(1)
+			default {
+				let prob_name = self.expect_ident()
+				let prod = switch eater.peek(0) {
+					case Token.Colon {
+						eater.expect_eat(Token.Colon)
+						Property {
+							name: prob_name,
+							value: parse_item(eater)
+						}
+					}
+					default {
+						Property {
+							name: prob_name,
+							value: AstNode.Ident(prob_name)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	const b = ObjIns {
+		name: "test",
+		props
+	}
+}
+
+fn parse_array() {
+
+}
+
+fn parse_if(eater: TokenEater) {
+
+}
+
+fn parse_for(eater: TokenEater) {
+
+}
+
 fn parse_item(eater: TokenEater) {
 	switch eater.peek(0) {
-		case Token.Assign {
+		case Token.OpenBrace {
+
+		}
+		case Token.Ident {
 			
+		}
+		case Token.OpenBracket {
+			
+		}
+		case Token.OpenParen {
+
+		}
+		case Token.Ret {
+
+		}
+		case Token.If {
+
+		}
+		case Token.For {
+
+		}
+		case Token.Switch {
+
 		}
 	}
 }
